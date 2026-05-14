@@ -1,52 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
-
 namespace CRUD.Domain.Entities
 {
-    internal class Carro
+    public class Carro
     {
         public int Id { get; private set; }
-        public string Modelo { get; private set; }
+        public string Modelo { get; private set; } = string.Empty;
         public bool Ativo { get; private set; } = true;
 
         protected Carro()
         {
         }
-                        
+
         public Carro(int id, string modelo, bool ativo)
         {
-            setModelo(modelo);
-            setAtivo(ativo);
+            Id = id;
+            SetModelo(modelo);
+            SetAtivo(ativo);
         }
 
         public void Atualizar(string modelo, bool ativo)
         {
-            setModelo(modelo);
-            setAtivo(ativo);
-        } 
-        public void Desativar (bool ativo)
-        {
-            ativo = false;
+            SetModelo(modelo);
+            SetAtivo(ativo);
         }
 
-        public void setModelo(string modelo)
+        public void Desativar()
         {
-            if (string.IsNullOrEmpty(modelo))
-                throw new Exception("não pode ser null");
+            Ativo = false;
+        }
+
+        public void DefinirId(int id)
+        {
+            if (id <= 0)
+                throw new ArgumentException("O id deve ser maior que zero.", nameof(id));
+
+            Id = id;
+        }
+
+        private void SetModelo(string modelo)
+        {
+            if (string.IsNullOrWhiteSpace(modelo))
+                throw new ArgumentException("O modelo nao pode ser vazio.", nameof(modelo));
 
             if (modelo.Length > 14)
-                throw new Exception("não pode utrapassar o valor de 14 caracteres");
+                throw new ArgumentException("O modelo nao pode ultrapassar 14 caracteres.", nameof(modelo));
 
-            modelo = modelo.ToLower();
+            Modelo = modelo.Trim().ToLower();
         }
 
-        public void setAtivo(bool ativo)
+        private void SetAtivo(bool ativo)
         {
-            if (!ativo)
-                ativo = true;
+            Ativo = ativo;
         }
-
     }
 }

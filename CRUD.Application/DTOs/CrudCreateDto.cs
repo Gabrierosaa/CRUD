@@ -1,8 +1,8 @@
-﻿namespace CRUD.Application.DTOs
+namespace CRUD.Application.DTOs
 {
-    internal class CrudCreateDto
+    public class CrudCreateDto
     {
         public string Modelo { get; set; } = string.Empty;
-        public bool Ativo { get; set;}
+        public bool Ativo { get; set; }
     }
 }

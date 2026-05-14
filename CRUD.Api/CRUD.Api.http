@@ -1,6 +1,33 @@
 @CRUD.Api_HostAddress = http://localhost:5211
 
-GET {{CRUD.Api_HostAddress}}/weatherforecast/
+GET {{CRUD.Api_HostAddress}}/carros/
 Accept: application/json
 
 ###
+
+POST {{CRUD.Api_HostAddress}}/carros/
+Content-Type: application/json
+
+{
+  "modelo": "civic",
+  "ativo": true
+}
+
+###
+
+GET {{CRUD.Api_HostAddress}}/carros/1
+Accept: application/json
+
+###
+
+PUT {{CRUD.Api_HostAddress}}/carros/1
+Content-Type: application/json
+
+{
+  "modelo": "corolla",
+  "ativo": true
+}
+
+###
+
+DELETE {{CRUD.Api_HostAddress}}/carros/1

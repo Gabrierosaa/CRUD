@@ -1,12 +1,20 @@
+using CRUD.Application.DTOs;
+using CRUD.Application.Interfaces;
+using CRUD.Application.Services;
+using CRUD.Domain.Interfaces;
+using CRUD.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton<ICrudRepository, InMemoryCrudRepository>();
+builder.Services.AddScoped<ICrudService, CrudService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -14,28 +22,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var carros = app.MapGroup("/carros");
 
-app.MapGet("/weatherforecast", () =>
+carros.MapGet("/", async (ICrudService service) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var resultado = await service.GetAllAsync();
+    return Results.Ok(resultado);
+});
+
+carros.MapGet("/{id:int}", async (int id, ICrudService service) =>
+{
+    var resultado = await service.GetByIdAsync(id);
+    return resultado is null ? Results.NotFound() : Results.Ok(resultado);
+});
+
+carros.MapPost("/", async (CrudCreateDto dto, ICrudService service) =>
+{
+    var resultado = await service.AddAsync(dto);
+    return Results.Created($"/carros/{resultado.Id}", resultado);
+});
+
+carros.MapPut("/{id:int}", async (int id, CrudUpdateDto dto, ICrudService service) =>
+{
+    var atualizado = await service.UpdateAsync(id, dto);
+    return atualizado ? Results.NoContent() : Results.NotFound();
+});
+
+carros.MapDelete("/{id:int}", async (int id, ICrudService service) =>
+{
+    var removido = await service.DeleteAsync(id);
+    return removido ? Results.NoContent() : Results.NotFound();
+});
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
